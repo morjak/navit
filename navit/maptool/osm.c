@@ -106,6 +106,8 @@ enum attr_strings_type {
 	attr_string_ref,
 	attr_string_exit_to,
 	attr_string_street_destination,
+	attr_string_street_destination_forward,
+	attr_string_street_destination_backward,
 	attr_string_house_number,
 	attr_string_label,
 	attr_string_postal,
@@ -1180,10 +1182,31 @@ osm_add_tag(char *k, char *v)
 				attr_strings_save(attr_string_street_name_systematic_int, v);
 			level=5;
 	}
+	int has_destination_forward = 0;
+	int has_destination_backward = 0;
+	if (! strcmp(k,"destination:forward")) {
+		if (in_way) {
+			attr_strings_save(attr_string_street_destination_forward, v);
+			has_destination_forward=1;
+		}
+		level=5;
+	}
+	if (! strcmp(k,"destination:backward")) {
+		if (in_way) {
+			attr_strings_save(attr_string_street_destination_backward, v);
+			has_destination_backward=1;
+		}
+		level=5;
+	}
 	if (! strcmp(k,"destination")) {
-			if (in_way)
-				attr_strings_save(attr_string_street_destination, v);
-			level=5;
+		if (in_way){
+			attr_strings_save(attr_string_street_destination, v);
+			if (has_destination_forward == 0)
+				attr_strings_save(attr_string_street_destination_forward, v);
+			if (has_destination_backward == 0)
+				attr_strings_save(attr_string_street_destination_backward, v);
+		}
+		level=5;
 	}
 	if (! strcmp(k,"exit_to")) {
 			attr_strings_save(attr_string_exit_to, v);
@@ -1778,6 +1801,8 @@ osm_end_way(struct maptool_osm *osm)
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic, attr_strings[attr_string_street_name_systematic]);
 		item_bin_add_attr_string(item_bin, attr_street_name_systematic_nat, attr_strings[attr_string_street_name_systematic_nat]);
 		item_bin_add_attr_string(item_bin, attr_street_destination, attr_strings[attr_string_street_destination]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_forward, attr_strings[attr_string_street_destination_forward]);
+		item_bin_add_attr_string(item_bin, attr_street_destination_backward, attr_strings[attr_string_street_destination_backward]);
 		item_bin_add_attr_longlong(item_bin, attr_osm_wayid, osmid_attr_value);
 		if (debug_attr_buffer[0])
 			item_bin_add_attr_string(item_bin, attr_debug, debug_attr_buffer);
