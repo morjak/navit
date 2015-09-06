@@ -14,7 +14,9 @@ fi
 
 TAG=R$(( 5658 + $CIRCLE_BUILD_NUM ))
 
-if [ git log -1 --format="%H %d" | ( grep 'tag: R' ) ] ; then
+git log -1 --format="%H %d" | grep 'tag: R' 
+
+if [ $? -ne 0 ] ; then
   echo "This commit is already tagged."
   exit
 fi
